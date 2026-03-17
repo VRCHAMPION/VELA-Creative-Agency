@@ -29,14 +29,21 @@ var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion:
 
     var tgX = 0, tgY = 0, thumbX = 0, thumbY = 0;
 
-    document.addEventListener('mousemove', function (e) {
-        if (!isReduced) {
-            cur.style.left = e.clientX + 'px';
-            cur.style.top = e.clientY + 'px';
-        }
-        tgX = e.clientX;
-        tgY = e.clientY;
-    });
+    var isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+    if (!isTouch) {
+        document.addEventListener('mousemove', function (e) {
+            if (!isReduced) {
+                cur.style.left = e.clientX + 'px';
+                cur.style.top = e.clientY + 'px';
+            }
+            tgX = e.clientX;
+            tgY = e.clientY;
+        });
+    } else {
+        cur.style.display = 'none';
+        if(thumb) thumb.style.display = 'none';
+    }
 
     if (thumb && !isReduced) {
         function animThumb() {
@@ -48,17 +55,19 @@ var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion:
         }
         requestAnimationFrame(animThumb);
 
-        document.querySelectorAll('.case-card').forEach(function(card) {
-            card.addEventListener('mouseenter', function() {
-                thumb.src = card.getAttribute('data-img');
-                thumb.classList.add('visible');
-                document.body.classList.add('hide-cursor');
+        if (!isTouch) {
+            document.querySelectorAll('.case-card').forEach(function(card) {
+                card.addEventListener('mouseenter', function() {
+                    thumb.src = card.getAttribute('data-img');
+                    thumb.classList.add('visible');
+                    document.body.classList.add('hide-cursor');
+                });
+                card.addEventListener('mouseleave', function() {
+                    thumb.classList.remove('visible');
+                    document.body.classList.remove('hide-cursor');
+                });
             });
-            card.addEventListener('mouseleave', function() {
-                thumb.classList.remove('visible');
-                document.body.classList.remove('hide-cursor');
-            });
-        });
+        }
     }
 })();
 
@@ -128,31 +137,57 @@ var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion:
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     els.forEach(function (el) { io.observe(el); });
 
-    // Draggable Case Studies
+    // Draggable Case Studies with Inertia
     var reel = document.getElementById('cs-reel');
     if (reel) {
-        var isDown = false, startX, scrollLeft;
-        reel.addEventListener('mousedown', function(e) {
+        var isDown = false, startX, scrollLeft, velX = 0, lastX = 0, rafId;
+        
+        function beginDrag(e) {
             isDown = true;
             reel.style.cursor = 'grabbing';
-            startX = e.pageX - reel.offsetLeft;
+            var px = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+            startX = px - reel.offsetLeft;
             scrollLeft = reel.scrollLeft;
-        });
-        reel.addEventListener('mouseleave', function() {
+            lastX = px;
+            cancelAnimationFrame(rafId);
+            velX = 0;
+        }
+
+        function endDrag() {
+            if(!isDown) return;
             isDown = false;
             reel.style.cursor = 'grab';
-        });
-        reel.addEventListener('mouseup', function() {
-            isDown = false;
-            reel.style.cursor = 'grab';
-        });
-        reel.addEventListener('mousemove', function(e) {
+            requestAnimationFrame(applyInertia);
+        }
+
+        function applyInertia() {
+            if (isDown) return;
+            velX *= 0.95; // friction
+            reel.scrollLeft -= velX;
+            if (Math.abs(velX) > 0.5) {
+                rafId = requestAnimationFrame(applyInertia);
+            }
+        }
+
+        function drag(e) {
             if (!isDown) return;
-            e.preventDefault();
-            var x = e.pageX - reel.offsetLeft;
-            var walk = (x - startX) * 2; // scroll-fast
+            var px = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+            var x = px - reel.offsetLeft;
+            var walk = (x - startX) * 2;
             reel.scrollLeft = scrollLeft - walk;
-        });
+            
+            velX = px - lastX;
+            lastX = px;
+        }
+
+        reel.addEventListener('mousedown', beginDrag);
+        reel.addEventListener('mouseleave', endDrag);
+        reel.addEventListener('mouseup', endDrag);
+        reel.addEventListener('mousemove', drag);
+        
+        reel.addEventListener('touchstart', beginDrag, {passive: true});
+        reel.addEventListener('touchend', endDrag);
+        reel.addEventListener('touchmove', drag, {passive: true});
     }
 
     // Magnetic Buttons
