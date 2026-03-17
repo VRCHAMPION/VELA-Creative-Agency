@@ -3,17 +3,16 @@
    ══════════════════════════════════════════════ */
 
 :root {
-    --bg: #08080a;
-    --bg2: #0c0b0f;
-    --ink: #f2ede4;
-    --muted: rgba(242, 237, 228, .4);
-    --border: rgba(242, 237, 228, .08);
-    --surface: rgba(242, 237, 228, .04);
-    --surf2: rgba(242, 237, 228, .07);
-    --accent: #ff4d1a;
-    /* vermilion — not AI-green */
-    --adim: rgba(255, 77, 26, .12);
-    --aglow: rgba(255, 77, 26, .28);
+    --bg: #e3dfd6;      /* Raw, untempered canvas */
+    --bg2: #dbd6cc;     /* Slightly deeper canvas */
+    --ink: #141517;     /* Industrial graphite */
+    --muted: rgba(20, 21, 23, 0.55);
+    --border: rgba(20, 21, 23, 0.12);
+    --surface: rgba(20, 21, 23, 0.04);
+    --surf2: rgba(20, 21, 23, 0.08);
+    --accent: #1e2df3;  /* Electric Cobalt */
+    --adim: rgba(30, 45, 243, 0.1);
+    --aglow: rgba(30, 45, 243, 0.25);
     --serif: 'Fraunces', Georgia, serif;
     --sans: 'Bricolage Grotesque', sans-serif;
     --mono: 'DM Mono', monospace;
@@ -83,7 +82,6 @@ ul {
     transform: translate(-50%, -50%);
     transition: width .25s var(--ease), height .25s var(--ease),
         background .2s, border-color .2s, opacity .3s;
-    mix-blend-mode: difference;
 }
 
 body:has(a:hover, button:hover) .cursor,
@@ -110,7 +108,7 @@ body:has(.svc-item:hover) .cursor {
 }
 
 #main-nav.scrolled {
-    background: rgba(8, 8, 10, .85);
+    background: rgba(227, 223, 214, 0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-color: var(--border);
@@ -207,8 +205,8 @@ body:has(.svc-item:hover) .cursor {
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(to top, rgba(8, 8, 10, .92) 0%, rgba(8, 8, 10, .0) 40%),
-        linear-gradient(to bottom, rgba(8, 8, 10, .4) 0%, transparent 12%);
+        linear-gradient(to top, var(--bg) 0%, rgba(227, 223, 214, 0) 40%),
+        linear-gradient(to bottom, rgba(227, 223, 214, .5) 0%, transparent 15%);
     z-index: 1;
 }
 
@@ -291,7 +289,7 @@ body:has(.svc-item:hover) .cursor {
 
 /* Outline / stroke treatment — a real designer move */
 .hl-stroke {
-    -webkit-text-stroke: 1px rgba(242, 237, 228, .5);
+    -webkit-text-stroke: 1px rgba(26, 22, 20, .4);
     color: transparent;
 }
 
@@ -307,7 +305,7 @@ body:has(.svc-item:hover) .cursor {
     justify-content: space-between;
     padding: 20px 48px;
     border-top: 1px solid var(--border);
-    background: rgba(8, 8, 10, .35);
+    background: rgba(227, 223, 214, 0.45);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     opacity: 0;
@@ -892,9 +890,9 @@ body:has(.svc-item:hover) .cursor {
     position: fixed;
     inset: 0;
     z-index: 200;
-    background: rgba(4, 4, 6, .75);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(20, 21, 23, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -910,7 +908,7 @@ body:has(.svc-item:hover) .cursor {
 }
 
 .modal {
-    background: #101013;
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 36px 40px 40px;
@@ -1374,7 +1372,7 @@ body:has(.svc-item:hover) .cursor {
 #loader {
     position: fixed;
     inset: 0;
-    background: #08080a;
+    background: var(--bg);
     z-index: 99999;
     display: flex;
     align-items: center;
@@ -1414,8 +1412,8 @@ body::after {
     inset: 0;
     z-index: 9998;
     background: url(#noise);
-    opacity: 0.035;
-    mix-blend-mode: overlay;
+    opacity: 0.12;
+    mix-blend-mode: multiply;
     pointer-events: none;
 }
 
@@ -1468,7 +1466,7 @@ body::after {
     font-variant: small-caps;
     font-size: 13px;
     color: var(--muted);
-    opacity: 0.3;
+    opacity: 0.8;
     padding: 0 48px;
     margin-bottom: 40px;
 }
@@ -1556,7 +1554,7 @@ body::after {
     left: 0;
     right: 0;
     padding: 32px 24px 24px;
-    background: linear-gradient(to top, rgba(8,8,10,0.85) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(20,21,23,0.85) 0%, transparent 100%);
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
@@ -1642,7 +1640,7 @@ body.hide-cursor .cursor {
     font-weight: 300;
     line-height: 1.15;
     letter-spacing: -.02em;
-    color: rgba(242, 237, 228, 0.55);
+    color: rgba(20, 21, 23, 0.55);
     max-width: 900px;
 }
 
@@ -1660,7 +1658,7 @@ body.hide-cursor .cursor {
 
 /* ── PROCESS ── */
 #process {
-    background: #0e0d11;
+    background: var(--bg2);
     padding: 120px 48px;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
@@ -1694,7 +1692,7 @@ body.hide-cursor .cursor {
     line-height: 1;
     color: var(--ink);
     margin-bottom: 32px;
-    background: #0e0d11;
+    background: var(--bg2);
     display: inline-block;
     padding-right: 20px;
 }
