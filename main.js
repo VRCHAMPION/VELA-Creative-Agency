@@ -239,6 +239,129 @@ var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion:
 })();
 
 
+/* ── 4.5. ULTRA-THINK REAL-TIME DATA ───── */
+(function() {
+    if (isReduced) return;
+
+    // 1 & 3: Global Sync & Time-Aware Copy
+    var syncTime = document.getElementById('sync-time');
+    var timeCopy = document.getElementById('time-aware-copy');
+    
+    function tickClock() {
+        var utc = new Date();
+        var istMillis = utc.getTime() + (utc.getTimezoneOffset() * 60000) + (5.5 * 3600000);
+        var ist = new Date(istMillis);
+        
+        if (syncTime) {
+            var h = String(ist.getHours()).padStart(2, '0');
+            var m = String(ist.getMinutes()).padStart(2, '0');
+            var s = String(ist.getSeconds()).padStart(2, '0');
+            syncTime.textContent = 'BOM ' + h + ':' + m + ':' + s + ' IST';
+        }
+
+        if (timeCopy) {
+            var localHr = utc.getHours(); // user's local time
+            if (localHr >= 0 && localHr < 5) {
+                timeCopy.textContent = "Currently: wondering why you are awake. Listening to Jon Hopkins.";
+            } else if (localHr >= 5 && localHr < 10) {
+                timeCopy.textContent = "Currently: on our third espresso. Reviewing Figma prototypes.";
+            } else if (localHr >= 10 && localHr < 17) {
+                timeCopy.textContent = "Currently: in deep work mode. Building systems.";
+            } else if (localHr >= 17 && localHr < 21) {
+                timeCopy.textContent = "Currently: wrapping up the day / reading old Penguin India covers.";
+            } else {
+                timeCopy.textContent = "Currently: off grid. Probably archiving inspiration.";
+            }
+        }
+    }
+    setInterval(tickClock, 1000);
+    tickClock();
+
+    // 1b: Micro-Weather Fetch (Mumbai)
+    var syncWeather = document.getElementById('sync-weather');
+    if (syncWeather) {
+        // Open-Meteo free API for Mumbai (19.076, 72.877)
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=19.0760&longitude=72.8777&current=temperature_2m,relative_humidity_2m,weather_code&timezone=Asia%2FKolkata')
+            .then(res => res.json())
+            .then(data => {
+                var temp = Math.round(data.current.temperature_2m);
+                var hum = data.current.relative_humidity_2m;
+                var wc = data.current.weather_code;
+                var condition = "CLEAR";
+                if (wc > 0 && wc <= 3) condition = "CLOUDY";
+                if (wc >= 45 && wc <= 48) condition = "FOG";
+                if (wc >= 51 && wc <= 67) condition = "RAIN";
+                if (wc >= 71 && wc <= 77) condition = "SNOW";
+                if (wc >= 80 && wc <= 99) condition = "STORM";
+                
+                syncWeather.textContent = temp + '°C / ' + hum + '% HUMIDITY / ' + condition;
+            })
+            .catch(err => {
+                syncWeather.textContent = 'DATA UNAVAILABLE';
+            });
+    }
+
+    // 2: Scroll Velocity Distortion
+    var heroHl = document.querySelector('.hero-hl');
+    if (heroHl) {
+        var lastScrollTop = 0;
+        var lastScrollTime = performance.now();
+        var currentSkew = 0;
+
+        window.addEventListener('scroll', function() {
+            var st = window.pageYOffset || document.documentElement.scrollTop;
+            var now = performance.now();
+            var dt = now - lastScrollTime;
+            var dy = st - lastScrollTop;
+            
+            if (dt > 0) {
+                var velocity = dy / dt; // pixels per ms
+                var targetSkew = -velocity * 1.5; // Max distortion factor
+                // Clamp
+                if (targetSkew > 15) targetSkew = 15;
+                if (targetSkew < -15) targetSkew = -15;
+
+                currentSkew += (targetSkew - currentSkew) * 0.2; // ease
+                heroHl.style.transform = 'skewY(' + currentSkew + 'deg)';
+                heroHl.style.fontStretch = (100 + Math.abs(velocity * 5)) + '%';
+            }
+
+            lastScrollTop = st <= 0 ? 0 : st;
+            lastScrollTime = now;
+        }, { passive: true });
+
+        // Reset resting state
+        setInterval(function() {
+            var now = performance.now();
+            if (now - lastScrollTime > 150) {
+                currentSkew *= 0.8; // Decay back to normal
+                if (Math.abs(currentSkew) < 0.1) currentSkew = 0;
+                heroHl.style.transform = 'skewY(' + currentSkew + 'deg)';
+                heroHl.style.fontStretch = '100%';
+            }
+        }, 50);
+    }
+
+    // 4: Attention Decay (Idle state)
+    var idleTimer;
+    function resetIdleTimer() {
+        document.body.classList.remove('idle-state');
+        clearTimeout(idleTimer);
+        // Set idle threshold to 5 seconds
+        idleTimer = setTimeout(function() {
+            document.body.classList.add('idle-state');
+        }, 5000);
+    }
+
+    document.addEventListener('mousemove', resetIdleTimer, { passive: true });
+    document.addEventListener('keydown', resetIdleTimer, { passive: true });
+    document.addEventListener('scroll', resetIdleTimer, { passive: true });
+    document.addEventListener('touchstart', resetIdleTimer, { passive: true });
+    resetIdleTimer();
+
+})();
+
+
 /* ── 5. TYPEWRITER ─────────────────────── */
 (function () {
     var display = document.getElementById('typewriter-display');

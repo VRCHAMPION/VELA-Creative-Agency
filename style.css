@@ -276,6 +276,8 @@ body:has(.svc-item:hover) .cursor {
     font-size: clamp(68px, 10vw, 160px);
     line-height: .95;
     letter-spacing: -.03em;
+    transform-origin: left bottom;
+    transition: transform 0.1s linear, font-stretch 0.1s linear;
 }
 
 .hl-line {
@@ -852,7 +854,7 @@ body:has(.svc-item:hover) .cursor {
 .footer-bot {
     padding: 24px 48px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
 }
 
@@ -860,12 +862,34 @@ body:has(.svc-item:hover) .cursor {
     font-family: var(--mono);
     font-size: 11px;
     color: var(--muted);
+    display: block;
+    margin-top: 12px;
 }
 
 .footer-wm {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -.04em;
+}
+
+.live-sync-matrix {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: var(--accent);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid rgba(30, 45, 243, 0.15);
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    display: inline-flex;
+}
+
+.sync-div {
+    color: var(--muted);
 }
 
 .footer-links {
@@ -1415,6 +1439,21 @@ body::after {
     opacity: 0.12;
     mix-blend-mode: multiply;
     pointer-events: none;
+    transition: opacity 2s ease-in-out;
+}
+
+/* ── IDLE STATE (ATTENTION DECAY) ── */
+body.idle-state::after {
+    opacity: 0.35;
+}
+
+body.idle-state {
+    filter: contrast(0.85) brightness(0.95) saturate(0.8);
+    transition: filter 3s ease-in-out;
+}
+
+body {
+    transition: filter 0.3s ease-out;
 }
 
 /* ── STUDIO STATUS ── */
