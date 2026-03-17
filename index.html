@@ -13,17 +13,30 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+    <div id="loader">
+        <div class="loader-wordmark">VELA<em>.</em></div>
+    </div>
+    
+    <svg style="display: none;">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+        </filter>
+    </svg>
 
     <div class="cursor" id="cursor"></div>
+    <img src="" alt="" class="cursor-thumb" id="cursor-thumb" />
 
     <!-- ══ NAV ══ -->
     <nav id="main-nav">
         <a href="#" class="wordmark">VELA<em>.</em></a>
         <div class="nav-mid">
+            <div id="studio-status" class="studio-status">
+                <span class="status-dot"></span>
+                <span class="status-txt">Checking status...</span>
+            </div>
             <span>Est. 2013</span>
             <span class="ndash">—</span>
-            <span>Amsterdam</span>
+            <span>Mumbai</span>
         </div>
         <div class="nav-end">
             <a href="#work" class="nl">Work</a>
@@ -87,6 +100,63 @@
             <span>UX Research</span><em>✦</em>
         </div>
     </div>
+
+    <!-- ══ CASE STUDIES ══ -->
+    <section id="case-studies">
+        <div class="cs-label">selected projects — 2021–2024</div>
+        <div class="cs-reel" id="cs-reel">
+            <div class="cs-track" id="cs-track">
+                
+                <div class="case-card" data-stat="14M views in 72 hours" data-img="https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=1974&auto=format&fit=crop">
+                    <div class="cc-bg" style="background-image: url('https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=1974&auto=format&fit=crop');"></div>
+                    <div class="cc-meta">
+                        <span class="cc-tag">Photography</span>
+                        <span class="cc-year">2024</span>
+                    </div>
+                    <h3 class="cc-client">Rasa</h3>
+                    <div class="cc-stat"><span class="cc-stat-tx">14M views in 72 hours</span></div>
+                </div>
+
+                <div class="case-card cc-tall" data-stat="Acquired by a global conglomerate" data-img="https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1965&auto=format&fit=crop">
+                    <div class="cc-bg" style="background-image: url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1965&auto=format&fit=crop');"></div>
+                    <div class="cc-meta">
+                        <span class="cc-tag">Identity</span>
+                        <span class="cc-year">2023</span>
+                    </div>
+                    <h3 class="cc-client">Vistaar</h3>
+                    <div class="cc-stat"><span class="cc-stat-tx">Acquired by a global conglomerate</span></div>
+                </div>
+
+                <div class="case-card" data-stat="Launched across 40 Tier 2 cities" data-img="https://images.unsplash.com/photo-1605364850849-c19bca4cc329?q=80&w=1974&auto=format&fit=crop">
+                    <div class="cc-bg" style="background-image: url('https://images.unsplash.com/photo-1605364850849-c19bca4cc329?q=80&w=1974&auto=format&fit=crop');"></div>
+                    <div class="cc-meta">
+                        <span class="cc-tag">Digital</span>
+                        <span class="cc-year">2022</span>
+                    </div>
+                    <h3 class="cc-client">Kaaya Co</h3>
+                    <div class="cc-stat"><span class="cc-stat-tx">Launched across 40 Tier 2 cities</span></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ LOGO STRIP ══ -->
+    <section id="logo-strip">
+        <div class="ls-wrap">
+            <span>Rasa</span>
+            <span>Vistaar</span>
+            <span>Kaaya Co</span>
+            <span>Thar Collective</span>
+            <span>Auro</span>
+            <span>Prism Bharat</span>
+        </div>
+    </section>
+
+    <!-- ══ MANIFESTO ══ -->
+    <section id="manifesto">
+        <h2 class="manifesto-quote" id="manifesto-text">We build for a hyper-modern India that hasn’t forgotten its roots. Loud when needed. Quiet where it counts. Always definitive.</h2>
+    </section>
 
     <!-- ══ SERVICES ══ -->
     <section id="services">
@@ -160,6 +230,46 @@
         </div>
     </section>
 
+    <!-- ══ PROCESS ══ -->
+    <section id="process">
+        <div class="proc-wrap">
+            <div class="proc-line"></div>
+            
+            <div class="proc-step" data-sr data-d="0">
+                <div class="ps-num">01</div>
+                <h4 class="ps-title">Discovery</h4>
+                <p class="ps-desc">We talk to your team, not just read the brief.</p>
+            </div>
+            
+            <div class="proc-step" data-sr data-d="120">
+                <div class="ps-num">02</div>
+                <h4 class="ps-title">Strategy</h4>
+                <p class="ps-desc">Positioning that actually survives contact with the market.</p>
+            </div>
+            
+            <div class="proc-step" data-sr data-d="240">
+                <div class="ps-num">03</div>
+                <h4 class="ps-title">Creative</h4>
+                <p class="ps-desc">Design systems built to scale, not just to present.</p>
+            </div>
+            
+            <div class="proc-step" data-sr data-d="360">
+                <div class="ps-num">04</div>
+                <h4 class="ps-title">Delivery</h4>
+                <p class="ps-desc">Assets handed over clean, organized, and ready to deploy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ TESTIMONIAL ══ -->
+    <section id="testimonial">
+        <div class="testi-wrap" data-sr>
+            <span class="testi-qmark">“</span>
+            <blockquote class="testi-quote">They didn’t just make us look better. They changed how we think about our own product. The clarity is brutal, in the best way possible.</blockquote>
+            <div class="testi-attr">Meera Iyer — Head of Brand — Thar Collective</div>
+        </div>
+    </section>
+
     <!-- ══ AI SEARCH ══ -->
     <section id="search-section">
         <div class="search-wrap">
@@ -191,8 +301,8 @@
                 </button>
             </div>
             <div class="about-r">
-                <p class="about-p" data-sr data-d="0">VELA is a creative studio headquartered in Amsterdam, with
-                    satellites in New York and Tokyo. We partner with founders, CMOs, and product teams who want to make
+                <p class="about-p" data-sr data-d="0">VELA is a creative studio headquartered in Mumbai, with
+                    satellites in Bengaluru and Delhi. We partner with founders, CMOs, and product teams who want to make
                     the kind of work that actually gets remembered — not just checked off a brief.</p>
                 <p class="about-p" data-sr data-d="120">We don't do retainers. We do relationships. Every engagement
                     starts with an honest conversation about what you actually need and whether we're genuinely the
@@ -213,8 +323,14 @@
             <button class="footer-book" id="open-booking-footer">Book a free discovery call →</button>
         </div>
         <div class="footer-bot">
-            <span class="wordmark">VELA<em>.</em></span>
-            <span class="footer-copy">© 2025 Vela Creative Studio. All rights reserved.</span>
+            <div class="fb-left">
+                <span class="wordmark">VELA<em>.</em></span>
+                <span class="footer-note">Currently: reading old Penguin India covers / listening to Nucleya</span>
+            </div>
+            <div class="fb-mid">
+                <span class="footer-copy">© 2025 Vela Creative Studio. All rights reserved.</span><br>
+                <span class="footer-copy">Registered in Mumbai, Maharashtra — India</span>
+            </div>
             <div class="footer-links">
                 <a href="#">Privacy</a>
                 <a href="#">Twitter</a>

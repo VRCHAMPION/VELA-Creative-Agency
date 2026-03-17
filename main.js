@@ -3,14 +3,63 @@
    ══════════════════════════════════════════ */
 'use strict';
 
-/* ── 1. CUSTOM CURSOR ──────────────────── */
+var isReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── 0. LOADER ─────────────────────────── */
+(function () {
+    var loader = document.getElementById('loader');
+    var wm = document.querySelector('.loader-wordmark');
+    if (!loader) return;
+
+    if (isReduced) {
+        loader.style.display = 'none';
+        return;
+    }
+
+    setTimeout(function() { wm && wm.classList.add('in'); }, 100);
+    setTimeout(function() { loader.classList.add('done'); }, 1200);
+    setTimeout(function() { loader.style.display = 'none'; }, 2400);
+})();
+
+/* ── 1. CUSTOM CURSOR & THUMBNAIL ──────── */
 (function () {
     var cur = document.getElementById('cursor');
+    var thumb = document.getElementById('cursor-thumb');
     if (!cur) return;
+
+    var tgX = 0, tgY = 0, thumbX = 0, thumbY = 0;
+
     document.addEventListener('mousemove', function (e) {
-        cur.style.left = e.clientX + 'px';
-        cur.style.top = e.clientY + 'px';
+        if (!isReduced) {
+            cur.style.left = e.clientX + 'px';
+            cur.style.top = e.clientY + 'px';
+        }
+        tgX = e.clientX;
+        tgY = e.clientY;
     });
+
+    if (thumb && !isReduced) {
+        function animThumb() {
+            thumbX += (tgX - thumbX) * 0.15;
+            thumbY += (tgY - thumbY) * 0.15;
+            thumb.style.left = thumbX + 'px';
+            thumb.style.top = Math.max(0, thumbY) + 'px';
+            requestAnimationFrame(animThumb);
+        }
+        requestAnimationFrame(animThumb);
+
+        document.querySelectorAll('.case-card').forEach(function(card) {
+            card.addEventListener('mouseenter', function() {
+                thumb.src = card.getAttribute('data-img');
+                thumb.classList.add('visible');
+                document.body.classList.add('hide-cursor');
+            });
+            card.addEventListener('mouseleave', function() {
+                thumb.classList.remove('visible');
+                document.body.classList.remove('hide-cursor');
+            });
+        });
+    }
 })();
 
 
@@ -23,30 +72,135 @@
 })();
 
 
-/* ── 3. HERO STAGGER ───────────────────── */
+/* ── 3. HERO STAGGER & REDUCED MOTION ──── */
 (function () {
     var tag = document.getElementById('ha-tag');
     var copy = document.getElementById('ha-copy');
     var foot = document.getElementById('ha-foot');
-    setTimeout(function () { tag && tag.classList.add('in'); }, 200);
-    setTimeout(function () { copy && copy.classList.add('in'); }, 350);
-    setTimeout(function () { foot && foot.classList.add('in'); }, 700);
+    var vid = document.getElementById('hero-video');
+
+    if (isReduced) {
+        tag && tag.classList.add('in');
+        copy && copy.classList.add('in');
+        foot && foot.classList.add('in');
+        if (vid) vid.pause();
+        return;
+    }
+
+    var delay = document.getElementById('loader') ? 1800 : 0;
+    setTimeout(function () { tag && tag.classList.add('in'); }, delay + 200);
+    setTimeout(function () { copy && copy.classList.add('in'); }, delay + 350);
+    setTimeout(function () { foot && foot.classList.add('in'); }, delay + 700);
 })();
 
 
-/* ── 4. SCROLL REVEAL ──────────────────── */
+/* ── 4. SCROLL REVEAL & NEW SECTIONS ───── */
 (function () {
-    var els = document.querySelectorAll('[data-sr], .eyebrow, .svc-item');
+    // Manifesto word split
+    var man = document.getElementById('manifesto-text');
+    if (man) {
+        var words = man.textContent.trim().split(' ');
+        man.innerHTML = '';
+        words.forEach(function(w) {
+            var span = document.createElement('span');
+            span.innerHTML = w + '&nbsp;';
+            span.className = 'man-word';
+            man.appendChild(span);
+        });
+    }
+
+    var els = document.querySelectorAll('[data-sr], .eyebrow, .svc-item, #manifesto-text');
     var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
             if (!entry.isIntersecting) return;
             var el = entry.target;
-            var d = parseInt(el.getAttribute('data-d') || el.getAttribute('data-delay') || '0', 10);
-            setTimeout(function () { el.classList.add('in'); }, d);
+            if (el.id === 'manifesto-text') {
+                var words = el.querySelectorAll('.man-word');
+                words.forEach(function(w, i) {
+                    setTimeout(function() { w.classList.add('in'); }, !isReduced ? i * 40 : 0);
+                });
+            } else {
+                var d = !isReduced ? parseInt(el.getAttribute('data-d') || el.getAttribute('data-delay') || '0', 10) : 0;
+                setTimeout(function () { el.classList.add('in'); }, d);
+            }
             io.unobserve(el);
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     els.forEach(function (el) { io.observe(el); });
+
+    // Draggable Case Studies
+    var reel = document.getElementById('cs-reel');
+    if (reel) {
+        var isDown = false, startX, scrollLeft;
+        reel.addEventListener('mousedown', function(e) {
+            isDown = true;
+            reel.style.cursor = 'grabbing';
+            startX = e.pageX - reel.offsetLeft;
+            scrollLeft = reel.scrollLeft;
+        });
+        reel.addEventListener('mouseleave', function() {
+            isDown = false;
+            reel.style.cursor = 'grab';
+        });
+        reel.addEventListener('mouseup', function() {
+            isDown = false;
+            reel.style.cursor = 'grab';
+        });
+        reel.addEventListener('mousemove', function(e) {
+            if (!isDown) return;
+            e.preventDefault();
+            var x = e.pageX - reel.offsetLeft;
+            var walk = (x - startX) * 2; // scroll-fast
+            reel.scrollLeft = scrollLeft - walk;
+        });
+    }
+
+    // Magnetic Buttons
+    if (!isReduced) {
+        var mags = document.querySelectorAll('.nav-cta, .footer-book');
+        mags.forEach(function(mag) {
+            mag.addEventListener('mousemove', function(e) {
+                var rect = mag.getBoundingClientRect();
+                var cx = rect.left + rect.width / 2;
+                var cy = rect.top + rect.height / 2;
+                var dist = Math.sqrt(Math.pow(e.clientX - cx, 2) + Math.pow(e.clientY - cy, 2));
+                if (dist < 70) {
+                    var tx = (e.clientX - cx) * 0.3;
+                    var ty = (e.clientY - cy) * 0.3;
+                    mag.style.transform = 'translate(' + tx + 'px, ' + ty + 'px)';
+                } else {
+                    mag.style.transform = '';
+                }
+            });
+            mag.addEventListener('mouseleave', function() {
+                mag.style.transform = '';
+            });
+        });
+    }
+
+    // Studio Status
+    var sStat = document.getElementById('studio-status');
+    if (sStat) {
+        var dot = sStat.querySelector('.status-dot');
+        var txt = sStat.querySelector('.status-txt');
+        function updateTime() {
+            var utc = new Date();
+            var istMillis = utc.getTime() + (utc.getTimezoneOffset() * 60000) + (5.5 * 3600000);
+            var ist = new Date(istMillis);
+            var hr = ist.getHours();
+            var day = ist.getDay();
+            var isWknd = (day === 0 || day === 6);
+            if (!isWknd && hr >= 9 && hr < 19) {
+                dot.classList.add('open');
+                txt.textContent = 'Studio open';
+            } else {
+                dot.classList.remove('open');
+                txt.textContent = 'Back at 9am IST';
+            }
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+    }
 })();
 
 
@@ -59,33 +213,31 @@
 
     var phrases = [
         "How long does a brand identity project take?",
-        "What industries do you work with?",
-        "Can you redesign an existing website?",
-        "Do you offer ongoing retainer services?",
-        "What does your onboarding process look like?",
-        "How do you handle revisions and feedback?"
+        "Do you work with D2C brands in India?",
+        "Can you help us launch in Tier 2 cities?",
+        "What does a typical project budget look like?",
+        "Do you work in Hindi and regional languages?",
+        "How do you handle projects across Mumbai and Bengaluru?"
     ];
 
     var answers = [
         [
-            { t: "Brand Identity Timeline", b: "A full brand identity project typically spans 6-10 weeks, depending on scope. This covers discovery, concepting, refinement, and final asset delivery." },
-            { t: "Rush timeline?", b: "We can accommodate accelerated timelines for an additional fee. Just ask during your discovery call." }
+            { t: "Brand Identity Timeline", b: "Usually 6-8 weeks. Enough time to go deep, but fast enough to maintain momentum for a launch." }
         ],
         [
-            { t: "Our client mix", b: "We work across tech, fintech, wellness, fashion, and consumer goods. Industry matters less than ambition." }
+            { t: "D2C Focus", b: "Yes. From packaging to digital storefronts, we understand the unit economics and the visual language needed to win in an over-crowded market." }
         ],
         [
-            { t: "Website redesigns", b: "Yes, and it is some of our favourite work. We audit what exists, identify what is working, and rebuild from a clear brief." },
-            { t: "What we need from you", b: "Access to analytics, existing brand assets, and 30 minutes with your team." }
+            { t: "Tier 2 Launch", b: "We design for the next billion users, which means keeping things highly accessible without looking cheap. It's about building trust, not just aesthetics." }
         ],
         [
-            { t: "On retainers", b: "We offer them on a case-by-case basis for clients we have already worked with. They cover ongoing design, copy, and strategy support." }
+            { t: "Budgets", b: "It depends completely on the scope and timeline, but our core brand engagements typically begin around ₹8L–₹12L for an established D2C stack." }
         ],
         [
-            { t: "The onboarding process", b: "It starts with a free 30-minute discovery call, then a tailored proposal. Once aligned, we kick off with a full briefing session and shared timeline." }
+            { t: "Regional Context", b: "Absolutely. We routinely develop multilingual brand systems, specifically ensuring typography scales beautifully across Devanagari and Latin scripts." }
         ],
         [
-            { t: "Revision policy", b: "Each phase includes two rounds of revisions. This keeps things moving without endless loops. Additional rounds can be scoped in if needed." }
+            { t: "Multi-city Projects", b: "Seamlessly. We operate as a single distributed team and travel consistently for vital kickoff and strategy sessions." }
         ]
     ];
 
@@ -113,7 +265,13 @@
         setTimeout(tick, del ? 24 : 54);
     }
 
-    setTimeout(tick, 1800);
+    if (!isReduced) {
+        setTimeout(tick, 1800);
+    } else {
+        display.textContent = phrases[0];
+        document.querySelector('.tw-cur').style.display = 'none';
+        idx = 0;
+    }
 
     searchBtn.addEventListener('click', function () {
         var set = answers[idx % answers.length] || [{ t: "Good question", b: "Send us an email and we will get back to you within one business day." }];
@@ -202,8 +360,8 @@
 
     var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
-    var TIMES = ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-        '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'];
+    var TIMES = ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '02:00 PM', '02:30 PM',
+        '03:00 PM', '03:30 PM', '05:00 PM', '05:30 PM', '06:00 PM'];
 
     function unavailable(ds) {
         var seed = ds.split('-').reduce(function (a, b) { return a + parseInt(b, 10); }, 0);
